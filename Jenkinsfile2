@@ -1,0 +1,37 @@
+pipeline {
+    agent any
+    stages {
+        stage('Clone repo') {
+            steps {
+                // Checkout source code from version control
+                git url: 'https://github.com/YASHODA-MUNNANGI/jenkins_docker2.git',
+                    credentialsId: 'guthub',
+                    branch: 'main'
+            }
+        }
+        stage('Docker Build') {
+            steps {
+                // Build the Docker image
+                script {
+                    sh 'docker build -t my-app -f Dockerfile2 .'
+                }
+            }
+        }
+        stage('Remove Existing Container') {
+            steps {
+                script {
+                    sh 'docker stop my-app-container || true' // Stop the container if it exists, ignore errors
+                    sh 'docker rm my-app-container || true'  // Remove the container if it exists, ignore errors
+                }
+            }
+        }
+        stage('dockerrun') {
+            steps {
+                // Deploy the Docker container
+                script {
+                    sh 'docker run -d -p 8083:80 --name my-app-container my-app'
+                }
+            }
+        }
+    }
+}
